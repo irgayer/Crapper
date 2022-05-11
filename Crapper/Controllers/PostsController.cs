@@ -36,7 +36,7 @@ namespace Crapper.Controllers
             if (user == null)
                 return BadRequest();
 
-            post.UserId = user.Id;
+            post.AuthorId = user.Id;
             _postRepository.Add(post);
             _postRepository.Save();
 
