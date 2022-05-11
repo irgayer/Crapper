@@ -3,7 +3,6 @@ using Crapper.DAL.EF.Repositories;
 using Crapper.Interfaces;
 using Crapper.Models;
 using Microsoft.EntityFrameworkCore;
-using AppContext = Crapper.DAL.EF.AppContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Post>, PostRepository>();
-builder.Services.AddDbContext<AppContext>(options =>
+builder.Services.AddDbContext<EFContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });

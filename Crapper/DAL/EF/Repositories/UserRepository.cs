@@ -7,9 +7,9 @@ namespace Crapper.DAL.EF.Repositories
 {
     public class UserRepository : IRepository<User>
     {
-        private readonly AppContext _context;
+        private readonly EFContext _context;
 
-        public UserRepository(AppContext context)
+        public UserRepository(EFContext context)
         {
             _context = context;
         }

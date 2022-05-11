@@ -7,9 +7,9 @@ namespace Crapper.DAL.EF.Repositories
 {
     public class PostRepository : IRepository<Post>
     {
-        private readonly AppContext _context;
+        private readonly EFContext _context;
 
-        public PostRepository(AppContext context)
+        public PostRepository(EFContext context)
         {
             _context = context;
         }
