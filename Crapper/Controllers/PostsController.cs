@@ -53,5 +53,22 @@ namespace Crapper.Controllers
             return Ok(res);
         }
 
+        [HttpGet("user/{id}")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetByUser(int id)
+        {
+            var user = _userRepository.Find(user => user.Id == id).SingleOrDefault();
+            
+            if (user == null)
+                return NotFound();
+
+            var posts = _postRepository.Find(post => post.AuthorId == user.Id);
+            var res = _mapper.Map<IEnumerable<PostDto>>(posts.AsEnumerable());
+
+            return Ok(res);
+        }
+
     }
 }
