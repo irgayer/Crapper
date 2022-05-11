@@ -38,5 +38,10 @@ namespace Crapper.DAL.EF.Repositories
         {
             return _context.Posts.AsNoTracking().Where(predicate).AsQueryable();
         }
+
+        public void Save()
+        {
+            _context.SaveChanges();
+        }
     }
 }

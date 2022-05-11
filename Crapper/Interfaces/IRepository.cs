@@ -9,5 +9,6 @@ namespace Crapper.Interfaces
         void Delete(T entity);
         IQueryable<T> GetAll();
         IQueryable<T> Find(Expression<Func<T, bool>> predicate);
+        void Save();
     }
 }
