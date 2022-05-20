@@ -9,7 +9,8 @@ namespace Crapper.Profiles
         public PostProfile()
         {
             CreateMap<PostCreateDto, Post>();
-            CreateMap<Post, PostDto>();
+            CreateMap<Post, PostDto>().ForMember("AuthorUsername", options => 
+                options.MapFrom(post => post.Author.Username));
         }
     }
 }

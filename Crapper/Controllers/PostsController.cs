@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crapper.Controllers
 {
@@ -47,7 +48,7 @@ namespace Crapper.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<PostDto>> GetAll()
         {
-            var posts = _postRepository.GetAll();
+            var posts = _postRepository.GetAll().Include(post => post.Author);
             var res = _mapper.Map<IEnumerable<PostDto>>(posts.AsEnumerable());
 
             return Ok(res);
@@ -70,5 +71,42 @@ namespace Crapper.Controllers
             return Ok(res);
         }
 
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult Delete(int id)
+        {
+            var user = User.Identity.Name;
+            var post = _postRepository.Find(post => post.Id == id).Include(post => post.Author).SingleOrDefault();
+
+            if (post == null)
+                return NotFound();
+            if (user != post.Author.Username)
+                return BadRequest();
+
+            _postRepository.Delete(post);
+            _postRepository.Save();
+
+            return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult Update(int id)
+        {
+            var user = User.Identity.Name;
+            var post = _postRepository.Find(post => post.Id == id).Include(post => post.Author).SingleOrDefault();
+
+            if (post == null)
+                return NotFound();
+            if (user != post.Author.Username)
+                return BadRequest();
+
+            //todo: implement
+            return Ok();
+        }
     }
 }
