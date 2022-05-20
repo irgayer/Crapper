@@ -7,5 +7,8 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public ICollection<Post> Posts { get; set; }
+        
+        public ICollection<Subscription> Subscribers { get; set; }
+        public ICollection<Subscription> Subscriptions { get; set; }
     }
 }
