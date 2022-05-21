@@ -8,6 +8,7 @@ using Crapper.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -73,6 +74,25 @@ namespace Crapper.Controllers
         public IActionResult GigaSecretRoute()
         {
             return Ok(User.Identity.Name);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetUserById(int id)
+        {
+            //todo: fix bullshit
+            var user = _userRepository.Find(user => user.Id == id)
+                .Include(user => user.Subscribers)
+                .Include(user => user.Subscriptions)
+                .Include(user => user.Posts)
+                .SingleOrDefault();
+            if (user == null)
+                return NotFound();
+
+            var res = _mapper.Map<UserDto>(user);
+
+            return Ok(res);
         }
 
         private ClaimsIdentity GetIdentity(User user)

@@ -65,7 +65,7 @@ namespace Crapper.Controllers
             if (user == null)
                 return NotFound();
 
-            var posts = _postRepository.Find(post => post.AuthorId == user.Id);
+            var posts = _postRepository.Find(post => post.AuthorId == user.Id).Include(post => post.Author);
             var res = _mapper.Map<IEnumerable<PostDto>>(posts.AsEnumerable());
 
             return Ok(res);
