@@ -20,6 +20,7 @@ namespace Crapper.Controllers
             _subscriptionRepository = subscriptionRepository;
         }
 
+        //todo: delete boilerplate
         [HttpPost("user/{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

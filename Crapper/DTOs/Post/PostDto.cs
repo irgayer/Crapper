@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public string Content { get; set; }
         public int AuthorId { get; set; }
+        //todo: search better solution
         public string AuthorUsername { get; set; }
     }
 }
