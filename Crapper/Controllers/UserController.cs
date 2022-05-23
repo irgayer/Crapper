@@ -41,6 +41,16 @@ namespace Crapper.Controllers
             return Ok();
         }
 
+        [HttpGet("whoami")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetUserId()
+        {
+            var user = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
+
+            return Ok(new { id = user.Id});
+        }
+
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

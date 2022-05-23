@@ -54,6 +54,19 @@ namespace Crapper.Controllers
             return Ok(res);
         }
 
+        //todo: rewrite boilerplate, use GetByUser(id)
+        [HttpGet("my")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetPostsByIdentity()
+        {
+            var user = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
+            //var posts = user.Posts.AsEnumerable();
+            var posts = _postRepository.Find(x => x.AuthorId == user.Id).Include(post => post.Author).AsEnumerable();
+            var res = _mapper.Map<IEnumerable<PostDto>>(posts);
+
+            return Ok(res);
+        }
+
         [HttpGet("user/{id}")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -108,5 +121,6 @@ namespace Crapper.Controllers
             //todo: implement
             return Ok();
         }
+
     }
 }
