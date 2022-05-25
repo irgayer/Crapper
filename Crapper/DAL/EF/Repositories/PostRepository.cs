@@ -14,19 +14,19 @@ namespace Crapper.DAL.EF.Repositories
             _context = context;
         }
 
-        public void Add(Post entity)
+        public async Task Add(Post entity)
         {
-            _context.Posts.Add(entity);
+            await _context.Posts.AddAsync(entity);
         }
 
-        public void Update(Post entity)
+        public async Task Update(Post entity)
         {
-            _context.Posts.Update(entity);
+            await _context.Posts.Update(entity).ReloadAsync();
         }
 
-        public void Delete(Post entity)
+        public async Task Delete(Post entity)
         {
-            _context.Posts.Remove(entity);
+            await _context.Posts.Remove(entity).ReloadAsync();
         }
 
         public IQueryable<Post> GetAll()
@@ -39,9 +39,9 @@ namespace Crapper.DAL.EF.Repositories
             return _context.Posts.AsNoTracking().Where(predicate).AsQueryable();
         }
 
-        public void Save()
+        public async Task Save()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }
