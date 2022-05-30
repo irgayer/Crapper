@@ -29,7 +29,7 @@ namespace Crapper.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Create(PostCreateDto req)
+        public async Task<IActionResult> Create(PostCreateDto req)
         {
             var post = _mapper.Map<Post>(req);
             var user = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
@@ -38,8 +38,8 @@ namespace Crapper.Controllers
                 return BadRequest();
 
             post.AuthorId = user.Id;
-            _postRepository.Add(post);
-            _postRepository.Save();
+            await _postRepository.Add(post);
+            await _postRepository.Save();
 
             return Ok();
         }
@@ -48,7 +48,7 @@ namespace Crapper.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<PostDto>> GetAll()
         {
-            var posts = _postRepository.GetAll().Include(post => post.Author);
+            var posts = _postRepository.GetAll();
             var res = _mapper.Map<IEnumerable<PostDto>>(posts.AsEnumerable());
 
             return Ok(res);
@@ -61,7 +61,7 @@ namespace Crapper.Controllers
         {
             var user = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
             //var posts = user.Posts.AsEnumerable();
-            var posts = _postRepository.Find(x => x.AuthorId == user.Id).Include(post => post.Author).AsEnumerable();
+            var posts = _postRepository.Find(x => x.AuthorId == user.Id).AsEnumerable();
             var res = _mapper.Map<IEnumerable<PostDto>>(posts);
 
             return Ok(res);
@@ -71,14 +71,14 @@ namespace Crapper.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetByUser(int id)
+        public async Task<IActionResult> GetByUserAsync(int id)
         {
-            var user = _userRepository.Find(user => user.Id == id).SingleOrDefault();
+            var user = await _userRepository.GetById(id);
             
             if (user == null)
                 return NotFound();
 
-            var posts = _postRepository.Find(post => post.AuthorId == user.Id).Include(post => post.Author);
+            var posts = _postRepository.Find(post => post.AuthorId == user.Id);
             var res = _mapper.Map<IEnumerable<PostDto>>(posts.AsEnumerable());
 
             return Ok(res);
@@ -88,10 +88,10 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var user = User.Identity.Name;
-            var post = _postRepository.Find(post => post.Id == id).Include(post => post.Author).SingleOrDefault();
+            var post = _postRepository.Find(post => post.Id == id).SingleOrDefault();
 
             if (post == null)
                 return NotFound();
@@ -99,7 +99,7 @@ namespace Crapper.Controllers
                 return BadRequest();
 
             _postRepository.Delete(post);
-            _postRepository.Save();
+            await _postRepository.Save();
 
             return Ok();
         }
@@ -111,7 +111,7 @@ namespace Crapper.Controllers
         public IActionResult Update(int id)
         {
             var user = User.Identity.Name;
-            var post = _postRepository.Find(post => post.Id == id).Include(post => post.Author).SingleOrDefault();
+            var post = _postRepository.Find(post => post.Id == id).SingleOrDefault();
 
             if (post == null)
                 return NotFound();

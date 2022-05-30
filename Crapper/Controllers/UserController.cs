@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 using AutoMapper;
 using Crapper.DTOs.User;
 using Crapper.Interfaces;
@@ -30,13 +31,18 @@ namespace Crapper.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public IActionResult Register(UserRegistrationDto req)
+        public async Task<IActionResult> Register(UserRegistrationDto req)
         {
             var user = _mapper.Map<User>(req);
 
-            _userRepository.Add(user);
-            _userRepository.Save();
+            var candidate = _userRepository.Find(u => u.Username == req.Username).SingleOrDefault();
+            if (candidate != null)
+                return BadRequest();
+
+            await _userRepository.Add(user);
+            await _userRepository.Save();
 
             return Ok();
         }
@@ -77,26 +83,12 @@ namespace Crapper.Controllers
             return Ok(encodedJwt);
         }
 
-        [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult GigaSecretRoute()
-        {
-            return Ok(User.Identity.Name);
-        }
-
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetUserById(int id)
+        public async Task<IActionResult> GetUserById(int id)
         {
-            //todo: fix bullshit
-            var user = _userRepository.Find(user => user.Id == id)
-                .Include(user => user.Subscribers)
-                .Include(user => user.Subscriptions)
-                .Include(user => user.Posts)
-                .SingleOrDefault();
+            var user = await _userRepository.GetById(id);
             if (user == null)
                 return NotFound();
 

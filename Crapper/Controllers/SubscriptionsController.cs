@@ -25,7 +25,7 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult Subscribe(int id)
+        public async Task<IActionResult> SubscribeAsync(int id)
         {
             var toUser = _userRepository.Find(user => user.Id == id).SingleOrDefault();
             var fromUser = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
@@ -43,8 +43,8 @@ namespace Crapper.Controllers
                 return BadRequest();
 
             subscription = new Subscription { FromId = fromUser.Id, ToId = toUser.Id};
-            _subscriptionRepository.Add(subscription);
-            _subscriptionRepository.Save();
+            await _subscriptionRepository.Add(subscription);
+            await _subscriptionRepository.Save();
 
             return Ok();
         }
@@ -52,7 +52,7 @@ namespace Crapper.Controllers
         [HttpDelete("user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Unsubscribe(int id)
+        public async Task<IActionResult> UnsubscribeAsync(int id, IRepository<Subscription> _subscriptionRepository)
         {
             var toUser = _userRepository.Find(user => user.Id == id).SingleOrDefault();
             var fromUser = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
@@ -70,7 +70,7 @@ namespace Crapper.Controllers
                 return BadRequest();
 
             _subscriptionRepository.Delete(subscription);
-            _subscriptionRepository.Save();
+            await _subscriptionRepository.Save();
 
             return Ok();
         }
