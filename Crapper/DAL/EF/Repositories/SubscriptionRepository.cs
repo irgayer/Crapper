@@ -30,17 +30,22 @@ namespace Crapper.DAL.EF.Repositories
 
         public IQueryable<Subscription> GetAll()
         {
-            return _context.Subscriptions.AsNoTracking().AsQueryable();
+            return _context.Subscriptions.AsNoTracking();
         }
 
         public IQueryable<Subscription> Find(Expression<Func<Subscription, bool>> predicate)
         {
-            return _context.Subscriptions.Where(predicate).AsNoTracking().AsQueryable();
+            return _context.Subscriptions.Where(predicate).AsNoTracking();
         }
 
         public async Task Save()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Subscription?> GetById(int id)
+        {
+            return await _context.Subscriptions.SingleOrDefaultAsync(s => s.Id == id);
         }
     }
 }

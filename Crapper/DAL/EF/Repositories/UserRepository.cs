@@ -31,17 +31,30 @@ namespace Crapper.DAL.EF.Repositories
 
         public IQueryable<User> GetAll()
         {
-            return _context.Users.AsNoTracking().AsQueryable();
+            return _context.Users.AsNoTracking();
         }
 
         public IQueryable<User> Find(Expression<Func<User, bool>> predicate)
         {
-            return _context.Users.AsNoTracking().Where(predicate).AsQueryable();
+            return _context.Users.Where(predicate)
+                .Include(user => user.Subscribers)
+                .Include(user => user.Subscriptions)
+                .Include(user => user.Posts)
+                .AsNoTracking();
         }
 
         public async Task Save()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetById(int id)
+        {
+            return await _context.Users
+                .Include(user => user.Subscribers)
+                .Include(user => user.Subscriptions)
+                .Include(user => user.Posts)
+                .SingleOrDefaultAsync(user => user.Id == id);
         }
     }
 }

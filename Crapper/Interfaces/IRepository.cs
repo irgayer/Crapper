@@ -7,6 +7,7 @@ namespace Crapper.Interfaces
         Task Add(T entity);
         Task Update(T entity);
         Task Delete(T entity);
+        Task<T?> GetById(int id);
         IQueryable<T> GetAll();
         IQueryable<T> Find(Expression<Func<T, bool>> predicate);
         Task Save();
