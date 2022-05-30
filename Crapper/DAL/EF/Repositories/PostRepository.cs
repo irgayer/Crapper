@@ -24,9 +24,9 @@ namespace Crapper.DAL.EF.Repositories
             await _context.Posts.Update(entity).ReloadAsync();
         }
 
-        public async Task Delete(Post entity)
+        public void Delete(Post entity)
         {
-            await _context.Posts.Remove(entity).ReloadAsync();
+            _context.Posts.Remove(entity);
         }
 
         public IQueryable<Post> GetAll()

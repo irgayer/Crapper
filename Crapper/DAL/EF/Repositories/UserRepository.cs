@@ -24,9 +24,9 @@ namespace Crapper.DAL.EF.Repositories
             await _context.Users.Update(entity).ReloadAsync();
         }
 
-        public async Task Delete(User entity)
+        public void Delete(User entity)
         {
-            await _context.Users.Remove(entity).ReloadAsync();
+            _context.Users.Remove(entity);
         }
 
         public IQueryable<User> GetAll()

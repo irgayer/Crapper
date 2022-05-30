@@ -23,9 +23,9 @@ namespace Crapper.DAL.EF.Repositories
             await _context.Subscriptions.Update(entity).ReloadAsync();
         }
 
-        public async Task Delete(Subscription entity)
+        public void Delete(Subscription entity)
         {
-            await _context.Subscriptions.Remove(entity).ReloadAsync();
+            _context.Subscriptions.Remove(entity);
         }
 
         public IQueryable<Subscription> GetAll()
