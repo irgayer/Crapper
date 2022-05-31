@@ -4,8 +4,14 @@ using System.Text;
 
 using AutoMapper;
 using Crapper.DTOs.User;
+using Crapper.Features.UserFeatures.Commands.AddUser;
+using Crapper.Features.UserFeatures.Queries.GetUserById;
+using Crapper.Features.UserFeatures.Queries.LoginUser;
 using Crapper.Interfaces;
 using Crapper.Models;
+
+using MediatR;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +25,11 @@ namespace Crapper.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IMapper _mapper;
-        private readonly JwtOptions _jwtOptions;
+        private readonly ISender _mediator;
 
-        public UserController(IRepository<User> userRepository, IMapper mapper, IOptions<JwtOptions> jwtOptions)
+        public UserController(ISender mediator = null)
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
-            _jwtOptions = jwtOptions.Value;
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
@@ -35,14 +37,9 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Register(UserRegistrationDto req)
         {
-            var user = _mapper.Map<User>(req);
-
-            var candidate = _userRepository.Find(u => u.Username == req.Username).SingleOrDefault();
-            if (candidate != null)
+            var success = await _mediator.Send(new AddUserCommand(req));
+            if (!success)
                 return BadRequest();
-
-            await _userRepository.Add(user);
-            await _userRepository.Save();
 
             return Ok();
         }
@@ -50,37 +47,31 @@ namespace Crapper.Controllers
         [HttpGet("whoami")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult GetUserId()
+        public async Task<IActionResult> GetUserIdAsync()
         {
-            var user = _userRepository.Find(user => user.Username == User.Identity.Name).SingleOrDefault();
+            try
+            {
+                var id = int.Parse(User.FindFirstValue("id"));
+                var user = await _mediator.Send(new GetUserByIdQuery(id));
 
-            return Ok(new { id = user.Id});
+                return Ok(new { id = user.Id });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }     
         }
 
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Login(UserLoginDto req)
-        {
-            var user = _userRepository.Find(user => user.Email == req.Email && user.Password == req.Password).SingleOrDefault();
-
-            if (user == null)
+        public async Task<IActionResult> Login(UserLoginDto req)
+        {        
+            var result = await _mediator.Send(new LoginUserQuery(req));
+            if (!result.Success)
                 return BadRequest();
 
-            var now = DateTime.Now;
-            var identity = GetIdentity(user);
-
-            var jwt = new JwtSecurityToken(
-                issuer: _jwtOptions.Issuer,
-                audience: _jwtOptions.Audience,
-                notBefore:DateTime.Now,
-                claims: identity.Claims,
-                expires: now.AddMinutes(10),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)), SecurityAlgorithms.HmacSha256));
-
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            return Ok(encodedJwt);
+            return Ok(result.Jwt);
         }
 
         [HttpGet("{id}")]
@@ -88,24 +79,8 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userRepository.GetById(id);
-            if (user == null)
-                return NotFound();
-
-            var res = _mapper.Map<UserDto>(user);
-
-            return Ok(res);
-        }
-
-        private ClaimsIdentity GetIdentity(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, "Token");
-
-            return claimsIdentity;
-        }
+            var user = await _mediator.Send(new GetUserByIdQuery(id));
+            return user != null ? Ok(user) : NotFound();
+        }        
     }
 }
