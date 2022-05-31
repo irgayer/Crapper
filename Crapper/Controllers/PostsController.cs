@@ -24,11 +24,25 @@ namespace Crapper.Controllers
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostsController : ControllerBase
+<<<<<<< HEAD
     {     
         private readonly ISender _mediator;
 
         public PostsController(ISender mediator)
         {
+=======
+    {
+        private readonly IRepository<Post> _postRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IMapper _mapper;
+        private readonly ISender _mediator;
+
+        public PostsController(ISender mediator, IRepository<Post> postRepository, IMapper mapper, IRepository<User> userRepository)
+        {
+            _postRepository = postRepository;
+            _mapper = mapper;
+            _userRepository = userRepository;
+>>>>>>> 6538aaf62ea9044c39fe62ececa8ddf007033640
             _mediator = mediator;
         }
 
@@ -110,7 +124,7 @@ namespace Crapper.Controllers
                 return BadRequest();
 
             await _mediator.Send(new DeletePostCommand(id));
-            return Ok(post);
+            return Ok(post);         
         }
     }
 }
