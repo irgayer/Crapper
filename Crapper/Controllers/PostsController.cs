@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Crapper.DTOs.Post;
+﻿using Crapper.DTOs.Post;
 using Crapper.Features.PostsFeatures.Commands.AddPost;
 using Crapper.Features.PostsFeatures.Commands.DeletePost;
 using Crapper.Features.PostsFeatures.Queries.GetAllPosts;
@@ -7,16 +6,12 @@ using Crapper.Features.PostsFeatures.Queries.GetPostById;
 using Crapper.Features.PostsFeatures.Queries.GetPostsByFilter;
 using Crapper.Features.UserFeatures.Queries.GetUserById;
 using Crapper.Features.UserFeatures.Queries.HasAccessToPost;
-using Crapper.Interfaces;
-using Crapper.Models;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using System.Security.Claims;
 

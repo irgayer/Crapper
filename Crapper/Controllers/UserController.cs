@@ -1,23 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 
-using AutoMapper;
 using Crapper.DTOs.User;
 using Crapper.Features.UserFeatures.Commands.AddUser;
 using Crapper.Features.UserFeatures.Queries.GetUserById;
 using Crapper.Features.UserFeatures.Queries.LoginUser;
-using Crapper.Interfaces;
-using Crapper.Models;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Crapper.Controllers
 {
@@ -49,17 +41,10 @@ namespace Crapper.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserIdAsync()
         {
-            try
-            {
-                var id = int.Parse(User.FindFirstValue("id"));
-                var user = await _mediator.Send(new GetUserByIdQuery(id));
+            var id = int.Parse(User.FindFirstValue("id"));
+            var user = await _mediator.Send(new GetUserByIdQuery(id));
 
-                return Ok(new { id = user.Id });
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }     
+            return Ok(new { id = user.Id });         
         }
 
         [HttpPost("login")]
