@@ -39,12 +39,7 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(PostCreateDto req)
         {
-            // todo: create better solution
             var id = int.Parse(User.FindFirstValue("id"));
-            var user = await _mediator.Send(new GetUserByIdQuery(id));
-
-            if (user == null)
-                return BadRequest();
 
             var post = await _mediator.Send(new AddPostCommand(req, id));
             if (post == null)
@@ -67,10 +62,6 @@ namespace Crapper.Controllers
         public async Task<IActionResult> GetPostsByIdentity()
         {
             var id = int.Parse(User.FindFirstValue("id"));
-            var user = await _mediator.Send(new GetUserByIdQuery(id));
-
-            if (user == null)
-                return BadRequest();
 
             var posts = await _mediator.Send(new GetPostsByFilterQuery(x => x.Author.Id == id));
             return Ok(posts);
