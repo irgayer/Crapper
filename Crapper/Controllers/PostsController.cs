@@ -3,8 +3,10 @@ using Crapper.DTOs.Post;
 using Crapper.Features.PostsFeatures.Commands.AddPost;
 using Crapper.Features.PostsFeatures.Commands.DeletePost;
 using Crapper.Features.PostsFeatures.Queries.GetAllPosts;
+using Crapper.Features.PostsFeatures.Queries.GetPostById;
 using Crapper.Features.PostsFeatures.Queries.GetPostsByFilter;
 using Crapper.Features.UserFeatures.Queries.GetUserById;
+using Crapper.Features.UserFeatures.Queries.HasAccessToPost;
 using Crapper.Interfaces;
 using Crapper.Models;
 
@@ -95,18 +97,14 @@ namespace Crapper.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id)
         {
-            // fix: rewrite this crazy bullshit.
-            var userId = int.Parse(User.FindFirstValue("id"));
-            var user = await _mediator.Send(new GetUserByIdQuery(userId));
-
-            if (user == null)
-                return BadRequest();
-
-            var post = await _mediator.Send(new GetPostsByFilterQuery(x => x.Id == id));
-            if (!post.Any())
+            var post = await _mediator.Send(new GetPostByIdQuery(id));
+            if (post == null)
                 return NotFound();
 
-            if (user.Id != post.First().AuthorId)
+            var userId = int.Parse(User.FindFirstValue("id"));
+            var hasAccess = await _mediator.Send(new HasAccessToPostQuery(userId, id));
+
+            if (!hasAccess)
                 return BadRequest();
 
             await _mediator.Send(new DeletePostCommand(id));
