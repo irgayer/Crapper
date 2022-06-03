@@ -12,6 +12,13 @@ namespace Crapper.Features.PostsFeatures.Queries.GetPostById
     {
         private readonly IRepository<Post> _postRepository;
         private readonly IMapper _mapper;
+
+        public GetPostByIdQueryHandler(IRepository<Post> postRepository, IMapper mapper)
+        {
+            _postRepository = postRepository;
+            _mapper = mapper;
+        }
+
         public async Task<PostDto> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
         {
             var post = await _postRepository.GetById(request.Id);
