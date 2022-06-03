@@ -52,8 +52,8 @@ namespace Crapper.Features.UserFeatures.Queries.LoginUser
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username),
-                new Claim("id", user.Id.ToString())
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
             var claimsIdentity = new ClaimsIdentity(claims, "Token");
 

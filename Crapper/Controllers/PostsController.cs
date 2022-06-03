@@ -30,11 +30,11 @@ namespace Crapper.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(PostDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(PostCreateDto req)
         {
-            var id = int.Parse(User.FindFirstValue("id"));
+            var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var post = await _mediator.Send(new AddPostCommand(req, id));
             if (post == null)
@@ -45,6 +45,7 @@ namespace Crapper.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
         {
             var posts = await _mediator.Send(new GetAllPostsQuery());
@@ -53,10 +54,10 @@ namespace Crapper.Controllers
         }
 
         [HttpGet("my")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPostsByIdentity()
         {
-            var id = int.Parse(User.FindFirstValue("id"));
+            var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var posts = await _mediator.Send(new GetPostsByFilterQuery(x => x.Author.Id == id));
             return Ok(posts);
@@ -64,7 +65,7 @@ namespace Crapper.Controllers
 
         [HttpGet("user/{id}")]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByUserAsync(int id)
         {
@@ -78,16 +79,19 @@ namespace Crapper.Controllers
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        
+        [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id)
         {
+            // todo: move to filter
             var post = await _mediator.Send(new GetPostByIdQuery(id));
             if (post == null)
                 return NotFound();
 
-            var userId = int.Parse(User.FindFirstValue("id"));
+            // todo: move to middleware
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var hasAccess = await _mediator.Send(new HasAccessToPostQuery(userId, id));
 
             if (!hasAccess)

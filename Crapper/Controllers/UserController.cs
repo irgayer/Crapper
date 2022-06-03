@@ -41,7 +41,7 @@ namespace Crapper.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserIdAsync()
         {
-            var id = int.Parse(User.FindFirstValue("id"));
+            var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var user = await _mediator.Send(new GetUserByIdQuery(id));
 
             return Ok(new { id = user.Id });         
