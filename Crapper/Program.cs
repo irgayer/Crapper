@@ -2,6 +2,7 @@ using System.Text;
 using Crapper;
 using Crapper.DAL.EF;
 using Crapper.DAL.EF.Repositories;
+using Crapper.Filters;
 using Crapper.Interfaces;
 using Crapper.Models;
 
@@ -77,7 +78,12 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<ValidateEntityExists<Post>>();
+builder.Services.AddScoped<ValidateEntityExists<User>>();
+builder.Services.AddScoped<UserPostAccessFilter>();
+
 var app = builder.Build();
+
 app.UseCors(x =>
 {
     x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();

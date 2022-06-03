@@ -6,6 +6,8 @@ using Crapper.Features.PostsFeatures.Queries.GetPostById;
 using Crapper.Features.PostsFeatures.Queries.GetPostsByFilter;
 using Crapper.Features.UserFeatures.Queries.GetUserById;
 using Crapper.Features.UserFeatures.Queries.HasAccessToPost;
+using Crapper.Filters;
+using Crapper.Models;
 
 using MediatR;
 
@@ -36,9 +38,7 @@ namespace Crapper.Controllers
         {
             var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var post = await _mediator.Send(new AddPostCommand(req, id));
-            if (post == null)
-                return BadRequest();
+            var post = await _mediator.Send(new AddPostCommand(req, id));            
 
             return Ok(post);
         }
@@ -65,40 +65,25 @@ namespace Crapper.Controllers
 
         [HttpGet("user/{id}")]
         [AllowAnonymous]
+        [ServiceFilter(typeof(ValidateEntityExists<User>))]
         [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByUserAsync(int id)
         {
-            var user = await _mediator.Send(new GetUserByIdQuery(id));
-            
-            if (user == null)
-                return NotFound();
-
             var posts = await _mediator.Send(new GetPostsByFilterQuery(x => x.Author.Id == id));
             return Ok(posts);
         }
 
         [HttpDelete("{id}")]
-        
+        [ServiceFilter(typeof(ValidateEntityExists<Post>))]
+        [ServiceFilter(typeof(UserPostAccessFilter))]
         [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id)
-        {
-            // todo: move to filter
-            var post = await _mediator.Send(new GetPostByIdQuery(id));
-            if (post == null)
-                return NotFound();
-
-            // todo: move to middleware
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var hasAccess = await _mediator.Send(new HasAccessToPostQuery(userId, id));
-
-            if (!hasAccess)
-                return BadRequest();
-
+        {         
             await _mediator.Send(new DeletePostCommand(id));
-            return Ok(post);         
+            return Ok();         
         }
     }
 }
