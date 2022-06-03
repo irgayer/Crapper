@@ -22,7 +22,7 @@ namespace Crapper.Features.UserFeatures.Commands.AddUser
         {
             var user = _mapper.Map<User>(request.Dto);
 
-            var candidate = _userRepository.Find(u => u.Username == request.Dto.Username).SingleOrDefault();
+            var candidate = _userRepository.Find(u => u.Username == request.Dto.Username || u.Email == request.Dto.Email).SingleOrDefault();
             if (candidate != null)
                 return false;
 
