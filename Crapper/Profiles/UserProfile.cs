@@ -12,11 +12,11 @@ namespace Crapper.Profiles
             //todo: fix bullshit
             CreateMap<User, UserDto>().ForMember("Subscribers", options =>
             {
-                options.MapFrom(user => user.Subscribers.Count);
+                options.MapFrom(user => user.SubscribersCount);
             })
                 .ForMember("Subscriptions", options =>
             {
-                options.MapFrom(user => user.Subscriptions.Count);
+                options.MapFrom(user => user.SubscriptionsCount);
             })
                 .ForMember("Posts", options =>
                 {
