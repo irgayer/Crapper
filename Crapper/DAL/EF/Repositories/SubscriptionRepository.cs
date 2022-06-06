@@ -30,12 +30,12 @@ namespace Crapper.DAL.EF.Repositories
 
         public IQueryable<Subscription> GetAll()
         {
-            return _context.Subscriptions.AsNoTracking();
+            return _context.Subscriptions;
         }
 
         public IQueryable<Subscription> Find(Expression<Func<Subscription, bool>> predicate)
         {
-            return _context.Subscriptions.Where(predicate).AsNoTracking();
+            return _context.Subscriptions.Where(predicate);
         }
 
         public async Task Save()
