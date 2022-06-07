@@ -10,5 +10,15 @@ namespace Crapper.Models
         public string Content { get; set; }
         public User Author { get; set; }
         public int AuthorId { get; set; }
+
+        public ICollection<Like> Likes { get; set; }
+
+        public int LikesCount 
+        { 
+            get
+            {
+                return Likes.Count;
+            } 
+        }
     }
 }

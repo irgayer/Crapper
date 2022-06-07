@@ -22,6 +22,8 @@ namespace Crapper.Models
         public ICollection<Subscription> Subscribers { get; set; }
         public ICollection<Subscription> Subscriptions { get; set; }
 
+        public ICollection<Like> Likes { get; set; }
+
         public int SubscribersCount 
         { 
             get
