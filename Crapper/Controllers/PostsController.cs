@@ -2,10 +2,8 @@
 using Crapper.Features.PostsFeatures.Commands.AddPost;
 using Crapper.Features.PostsFeatures.Commands.DeletePost;
 using Crapper.Features.PostsFeatures.Queries.GetAllPosts;
-using Crapper.Features.PostsFeatures.Queries.GetPostById;
+using Crapper.Features.PostsFeatures.Queries.GetFollowingPosts;
 using Crapper.Features.PostsFeatures.Queries.GetPostsByFilter;
-using Crapper.Features.UserFeatures.Queries.GetUserById;
-using Crapper.Features.UserFeatures.Queries.HasAccessToPost;
 using Crapper.Filters;
 using Crapper.Models;
 
@@ -31,6 +29,16 @@ namespace Crapper.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
+        {
+            var posts = await _mediator.Send(new GetAllPostsQuery());
+
+            return Ok(posts);
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(PostDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,13 +51,25 @@ namespace Crapper.Controllers
             return Ok(post);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
+        [HttpDelete("{id}")]
+        [ServiceFilter(typeof(ValidateEntityExists<Post>))]
+        [ServiceFilter(typeof(UserPostAccessFilter))]
+        [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete(int id)
         {
-            var posts = await _mediator.Send(new GetAllPostsQuery());
+            await _mediator.Send(new DeletePostCommand(id));
+            return Ok();
+        }
 
+        [HttpGet("subs")]
+        [ProducesResponseType(typeof(ICollection<PostDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetFollowingPosts()
+        {
+            var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var posts = await _mediator.Send(new GetFollowingPostsQuery(id));
             return Ok(posts);
         }
 
@@ -72,18 +92,6 @@ namespace Crapper.Controllers
         {
             var posts = await _mediator.Send(new GetPostsByFilterQuery(x => x.Author.Id == id));
             return Ok(posts);
-        }
-
-        [HttpDelete("{id}")]
-        [ServiceFilter(typeof(ValidateEntityExists<Post>))]
-        [ServiceFilter(typeof(UserPostAccessFilter))]
-        [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(int id)
-        {         
-            await _mediator.Send(new DeletePostCommand(id));
-            return Ok();         
         }
     }
 }
