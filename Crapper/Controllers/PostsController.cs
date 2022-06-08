@@ -1,8 +1,10 @@
 ﻿using Crapper.DTOs.Post;
+using Crapper.Features.LikesFeatures.Commands.ToggleLike;
 using Crapper.Features.PostsFeatures.Commands.AddPost;
 using Crapper.Features.PostsFeatures.Commands.DeletePost;
 using Crapper.Features.PostsFeatures.Queries.GetAllPosts;
 using Crapper.Features.PostsFeatures.Queries.GetFollowingPosts;
+using Crapper.Features.PostsFeatures.Queries.GetPostLikeCount;
 using Crapper.Features.PostsFeatures.Queries.GetPostsByFilter;
 using Crapper.Filters;
 using Crapper.Models;
@@ -61,6 +63,20 @@ namespace Crapper.Controllers
         {
             await _mediator.Send(new DeletePostCommand(id));
             return Ok();
+        }
+
+        [HttpPost("{id}/like")]
+        [ServiceFilter(typeof(ValidateEntityExists<Post>))]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Like(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            await _mediator.Send(new ToggleLikeCommand(userId, id));
+            int likes = await _mediator.Send(new GetPostLikeCountQuery(id));
+
+            return Ok(likes);
         }
 
         [HttpGet("subs")]

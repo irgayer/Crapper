@@ -51,6 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Post>, PostRepository>();
 builder.Services.AddScoped<IRepository<Subscription>, SubscriptionRepository>();
+builder.Services.AddScoped<IRepository<Like>, LikeRepository>();
 
 builder.Services.AddDbContext<EFContext>(options =>
 {

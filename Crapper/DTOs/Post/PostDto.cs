@@ -7,5 +7,6 @@
         public int AuthorId { get; set; }
         //todo: search better solution
         public string AuthorUsername { get; set; }
+        public int Likes { get; set; }
     }
 }

@@ -31,12 +31,19 @@ namespace Crapper.DAL.EF.Repositories
 
         public IQueryable<Post> GetAll()
         {
-            return _context.Posts.Include(post => post.Author).AsNoTracking();
+            return _context.Posts
+                .Include(post => post.Author)
+                .Include(post => post.Likes)
+                .AsNoTracking();
         }
 
         public IQueryable<Post> Find(Expression<Func<Post, bool>> predicate)
         {
-            return _context.Posts.Include(post => post.Author).Where(predicate).AsNoTracking();
+            return _context.Posts
+                .Include(post => post.Author)
+                .Include(post => post.Likes)
+                .Where(predicate)
+                .AsNoTracking();
         }
 
         public async Task Save()
@@ -46,7 +53,9 @@ namespace Crapper.DAL.EF.Repositories
 
         public async Task<Post?> GetById(int id)
         {
-            return await _context.Posts.SingleOrDefaultAsync(post => post.Id == id);
+            return await _context.Posts
+                .Include(post => post.Likes).
+                SingleOrDefaultAsync(post => post.Id == id);
         }
     }
 }
