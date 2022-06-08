@@ -1,5 +1,6 @@
 ﻿using Crapper.Features.SubscriptionsFeatures.Commands.AddSubscription;
 using Crapper.Features.SubscriptionsFeatures.Commands.DeleteSubscription;
+using Crapper.Features.SubscriptionsFeatures.Queries.GetSubscriptions;
 using Crapper.Filters;
 using Crapper.Interfaces;
 using Crapper.Models;
@@ -26,7 +27,18 @@ namespace Crapper.Controllers
             _mediator = mediator;
         }
 
-        //todo: delete boilerplate
+        
+        [HttpGet]
+        [ProducesResponseType(typeof(ICollection<User>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSubscriptions()
+        {
+            var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var users = await _mediator.Send(new GetSubscriptionsQuery(id));
+
+            return Ok(users);
+        }
+
         [HttpPost("user/{id}")]
         [ServiceFilter(typeof(ValidateEntityExists<User>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
