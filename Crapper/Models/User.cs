@@ -2,10 +2,11 @@
 
 namespace Crapper.Models
 {
-    public class User
+    /// <summary>
+    /// Example of inherited class = BaseModel<Type> (int Id will now be included in this class)
+    /// </summary>
+    public class User : BaseModel<int>
     {
-        public int Id { get; set; }
-
         [StringLength(20, MinimumLength = 3)]
         public string Username { get; set; }
 

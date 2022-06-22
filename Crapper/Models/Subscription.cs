@@ -1,8 +1,7 @@
 ﻿namespace Crapper.Models
 {
-    public class Subscription
+    public class Subscription : BaseModel<int>
     {
-        public int Id { get; set; }
         public int FromId { get; set; }
         public User From { get; set; }
 
